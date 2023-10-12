@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -42,6 +43,19 @@ func (o ErrHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Message: "error decode custom error",
 			}
 		}
+
+		if r.Method != http.MethodGet {
+			bb, err := io.ReadAll(r.Body)
+			if err != nil {
+				errResponse = CustomError{
+					Code:    http.StatusInternalServerError,
+					Message: "error decode custom error",
+				}
+			}
+			defer r.Body.Close()
+			fmt.Println(string(bb))
+		}
+
 		user := getContextValueByKey(r.Context(), userKey, "string")
 		userID := getContextValueByKey(r.Context(), userIDKey, "int")
 		errResponse.Message = errResponse.Message + fmt.Sprintf("happened for %d : %s", userID, user)

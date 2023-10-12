@@ -11,7 +11,9 @@ func main() {
 	r.Use(CoreMiddleWare)
 
 	errMiddleWare := NewErrorHandle()
-	r.Handle("/hello", errMiddleWare.Handle(GetHello))
+	r.Handle("/hello", errMiddleWare.Handle(GetHello)).Methods(http.MethodGet)
+	r.Handle("/hello", errMiddleWare.Handle(CreateHello)).Methods(http.MethodPost)
+	r.Handle("/hello", errMiddleWare.Handle(UpdateHello)).Methods(http.MethodPut)
 
 	// Starting the server on port 8080
 	fmt.Println("Server is running on http://localhost:8080")
