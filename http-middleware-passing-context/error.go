@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type CustomError struct {
@@ -40,11 +42,28 @@ func (o ErrHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Message: "error decode custom error",
 			}
 		}
-		user := r.Context().Value(userKey).(string)
-		errResponse.Message = errResponse.Message + fmt.Sprintf("happened for %s", user)
+		user := getContextValueByKey(r.Context(), userKey, "string")
+		userID := getContextValueByKey(r.Context(), userIDKey, "int")
+		errResponse.Message = errResponse.Message + fmt.Sprintf("happened for %d : %s", userID, user)
 
 		w.WriteHeader(errResponse.Code)
 		_ = json.NewEncoder(w).Encode(errResponse)
 		return
 	}
+}
+
+func getContextValueByKey(ctx context.Context, key string, returnType string) any {
+	var value any
+	if value = ctx.Value(key); value == nil {
+		return nil
+	}
+	switch returnType {
+	case "string":
+		return value.(string)
+	case "int":
+		number, _ := strconv.Atoi(value.(string))
+		return number
+	}
+
+	return ""
 }

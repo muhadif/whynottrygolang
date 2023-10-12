@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func main() {
-	mux := http.NewServeMux()
+	r := mux.NewRouter()
+	r.Use(CoreMiddleWare)
 
-	errprMiddlerWare := NewErrorHandle()
-	mux.Handle("/hello", errprMiddlerWare.Handle(GetHello))
+	errMiddleWare := NewErrorHandle()
+	r.Handle("/hello", errMiddleWare.Handle(GetHello))
 
 	// Starting the server on port 8080
 	fmt.Println("Server is running on http://localhost:8080")
-	err := http.ListenAndServe(":8000", mux)
+	err := http.ListenAndServe(":8000", r)
 	if err != nil {
 		return
 	}
