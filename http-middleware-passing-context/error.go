@@ -40,6 +40,9 @@ func (o ErrHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				Message: "error decode custom error",
 			}
 		}
+		user := r.Context().Value(userKey).(string)
+		errResponse.Message = errResponse.Message + fmt.Sprintf("happened for %s", user)
+
 		w.WriteHeader(errResponse.Code)
 		_ = json.NewEncoder(w).Encode(errResponse)
 		return
