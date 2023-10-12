@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -19,7 +20,8 @@ func GetHello(w http.ResponseWriter, req *http.Request) error {
 		return err
 	}
 
-	hello := &Hello{Message: "Hi, Im Here"}
+	user := getContextValueByKey(req.Context(), userKey, "string")
+	hello := &Hello{Message: fmt.Sprintf("Hi, %s", user)}
 
 	return json.NewEncoder(w).Encode(hello)
 }
